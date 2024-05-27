@@ -3,31 +3,25 @@ from django.http.response import JsonResponse
 from .models import User, Product, Favorite, ProductsCategory, Order
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 
 
 # Create your views here.
 
 
-def index(request, category_pk: int | None = None):
+def index(request):
     """Представление главное страницы."""
-
-    category = None
 
     # Выводим только активные товары, и товары, у которых количество больше 0.
     products = Product.objects.filter(is_active=True, count__gt=0)
     categories = ProductsCategory.objects.all()
 
-    if category_pk:
-        category = get_object_or_404(ProductsCategory, pk=category_pk)
-        products = products.filter(categories=category)
-
     context = {
         'products': products,
-        'categories': categories,
-        'category': category
+        'categories': categories
     }
 
-    return render(request, '', context=context)
+    return render(request, 'index.html', context=context)
 
 
 @login_required
@@ -44,7 +38,7 @@ def profile(request, user_slug: str):
         'orders_list': orders_list
     }
 
-    return render(request, '', context=context)
+    return render(request, 'profile.html', context=context)
 
 
 def product_detail(request, product_slug):
@@ -59,10 +53,19 @@ def product_detail(request, product_slug):
         }
     else:
         context = {
-            'product': product
+            'product': product.title
         }
 
-    return render(request, '', context=context)
+    return render(request, 'product_detail.html', context=context)
+
+
+def products_list_by_category(request, category_pk: int):
+    """Возвращает товары по выбранной категории."""
+
+    category = ProductsCategory.objects.get(pk=category_pk)
+    products = Product.objects.filter(categories=category)
+
+    return JsonResponse(serializers.serialize('json', products))
 
 
 def register_user(request):
@@ -109,16 +112,13 @@ def logout_user(request):
     logout(request)
 
 
-# Надо доделать!!!!!!!!!
 def create_order(request):
     """Представление создающее заказ."""
 
-    # Сделать подсчёт стоимости, сложив стоимость каждого товара.
-
     if request.method == "POST":
-        products = [Product.objects.filter(slug=product['slug']) for product in request.get['products']]
+        products = [Product.objects.filter(slug=request_product['slug']) for request_product in request.get['products']]
 
-        order = Order(products=products)
+        order = Order(products=products, user=request.user)
 
         try:
             order.save()

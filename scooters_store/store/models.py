@@ -14,12 +14,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="Эл. почта", unique=True, blank=False,
                               help_text="Используйте формат: name@domain.com.")
 
-    password = models.CharField(verbose_name="Пароль", blank=False)
+    password = models.CharField(verbose_name="Пароль", blank=False, max_length=255)
     phone = models.CharField(verbose_name="Тел. номер", blank=True, max_length=12,
                              help_text="Используйте формат: +79770000000")
     slug = models.SlugField(verbose_name="Ссылка на профиль", unique=True)
     created_date = models.DateTimeField(verbose_name="Дата регистрации", auto_now_add=True)
     is_superuser = models.BooleanField(default=0, verbose_name="Админ")
+    is_staff = models.BooleanField(default=0, verbose_name="Модератор")
     is_active = models.BooleanField(default=1, verbose_name="Активное / Нет")
 
     USERNAME_FIELD = 'email'
@@ -30,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "Пользователи"
         verbose_name = "Пользователя"
 
-        ordering = ["-date_joined"]
+        ordering = ["-created_date"]
 
     def save(self, *args, **kwargs):
         """Переопределяем метод сохранения для автоматического создания поля slug из email,
@@ -68,10 +69,10 @@ class Product(models.Model):
     """Модель товаров."""
 
     title = models.CharField(verbose_name="Наименование", blank=False, max_length=255)
-    price = models.CharField(verbose_name="Цена", blank=False)
+    price = models.DecimalField(verbose_name="Цена", max_digits=10,  decimal_places=2)
     description = models.TextField(verbose_name="Описание", blank=False)
     count = models.IntegerField(verbose_name="Количество", blank=False)
-    photo = models.ImageField(verbose_name="Фотография", blank=False, upload_to="/media/products/")
+    photo = models.ImageField(verbose_name="Фотография", blank=False, upload_to="media/products/")
     categories = models.ManyToManyField(ProductsCategory)
     created_date = models.DateTimeField(verbose_name="Дата создания", auto_now_add=True)
     updated_date = models.DateTimeField(verbose_name="Дата обновления", auto_now=True)
@@ -109,12 +110,15 @@ class Favorite(models.Model):
 
         ordering = ["-created_date"]
 
+    def __str__(self):
+        return self.product.title
+
 
 class Store(models.Model):
     """Модель магазинов."""
 
-    title = models.CharField(verbose_name="Название магазина", blank=False)
-    address = models.CharField(verbose_name="Адрес магазина", blank=False)
+    title = models.CharField(verbose_name="Название магазина", blank=False, max_length=255)
+    address = models.CharField(verbose_name="Адрес магазина", blank=False, max_length=255)
     created_date = models.DateTimeField(verbose_name="Дата добавления", auto_now_add=True)
 
     class Meta:
@@ -122,6 +126,9 @@ class Store(models.Model):
         verbose_name = "Магазин"
 
         ordering = ["-created_date"]
+
+    def __str__(self):
+        return self.title
 
 
 class Order(models.Model):
@@ -143,10 +150,11 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.SET_NULL, null=True)
     products = models.ManyToManyField(Product, verbose_name="Товары")
-    variant = models.CharField(verbose_name="Варианты получения заказа", choices=variants, blank=False)
-    address = models.CharField(verbose_name="Адрес", null=True)
-    store = models.ForeignKey(Store, verbose_name="Пункт выдачи", on_delete=models.SET_NULL, null=True)
-    status = models.CharField(verbose_name="Статус заказа", choices=order_status, blank=False)
+    variant = models.CharField(verbose_name="Варианты получения заказа", choices=variants, blank=False, max_length=255)
+    address = models.CharField(verbose_name="Адрес доставки", null=True, max_length=255, blank=True)
+    store = models.ForeignKey(Store, verbose_name="Пункт выдачи", on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(verbose_name="Статус заказа", choices=order_status, blank=False, max_length=255)
+    price = models.DecimalField(verbose_name="Стоимость заказа", max_digits=10,  decimal_places=2, null=True)
     created_date = models.DateTimeField(verbose_name="Дата заказа", auto_now_add=True)
 
     class Meta:
@@ -154,6 +162,14 @@ class Order(models.Model):
         verbose_name = "Заказ"
 
         ordering = ["-created_date"]
+
+    def save(self, *args, **kwargs):
+
+        # Получает общую стоимость заказа.
+        super().save(*args, **kwargs)
+        self.price = sum(product.price for product in self.products.all())
+
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('', kwargs={'slug': self.pk})

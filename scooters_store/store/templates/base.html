@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title> Электросамокат.ру </title>
+</head>
+<body>
+    <header>
+        <div class="header_content">
+            <p>ООО "Электросамокат.ру"</p>
+            <div class="header_content__info">
+                <p>79776208694</p>
+                <p>Пробный переулок д. 1</p>
+            </div>
+            <div class="header_content__auth">
+                <a href="#">Вход</a>
+                /
+                <a href="#">Регистрация</a>
+            </div>
+            <div class="header_content__cart">
+                <div class="cart_field">
+                    <img src="/static/icons/free-icon-shopping-cart-5087816.png" alt="cart_icon">
+                    <p>0 р.</p>
+                </div>
+                <button class="cart_button">Открыть корзину</button>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        <div class="footer_content">
+            <p>ООО "Электросамокат.ру"</p>
+            <p>all rights reserved©</p>
+            <div class="content__icons">
+                <a href="#"><img src="/static/icons/free-icon-vk-5968835.png" alt="VK"></a>
+                <a href="#"><img src="/static/icons/free-icon-telegram-2111646.png" alt="Telegram"></a>
+                <a href="#"><img src="/static/icons/free-icon-youtube-3670147.png" alt="YouTube"></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
