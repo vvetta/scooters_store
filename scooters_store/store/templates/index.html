@@ -1,10 +1,49 @@
 {% extends 'base.html' %}
 {% load static %}
+
+
+
 {% block content %}
-
-    {% for product in products %}
-    {{product.title}}
-    {{product.price}}
-    {% endfor %}
-
+    <main>
+        <div class="section">
+            <div class="section_header">
+                <p>Категории</p>
+            </div>
+            <div class="category_wrapper">
+                {% for category in categories %}
+                <div class="category_item"><button><p>{{category.title}}</p></button></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="section">
+            <div class="section_header">
+                <p>Товары</p>
+            </div>
+            <div class="product_wrapper">
+                {% for product in products %}
+                <div class="product_item">
+                    <div class="product_img_field">
+                        <img src="{{product.photo}}" alt="productPhoto">
+                    </div>
+                    <div class="product_info_field">
+                        <p>{{product.title}}</p>
+                        <p>{{product.price}}р</p>
+                        <p>{{product.description}}</p>
+                    </div>
+                    <div class="product_buttons_field">
+                        <button class="add_to_favorite" product_slug="{{product.slug}}">
+                            <img src="{% static 'icons/free-icon-heart-shape-outline-25424.png' %}" alt="addToFavorite">
+                        </button>
+                        <button class="add_to_cart_button" id="add_to_cart_button" product_slug="{{product.slug}}">
+                            <p>Добавить в корзину</p>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                
+                
+            </div>
+        </div>
+    </main>
 {% endblock %}

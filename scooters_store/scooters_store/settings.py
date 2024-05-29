@@ -81,6 +81,7 @@ DATABASES = {
     }
 }
 AUTH_USER_MODEL = 'store.User'
+CART_SESSION_ID = 'cart'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

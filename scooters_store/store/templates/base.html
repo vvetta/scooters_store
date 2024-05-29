@@ -1,10 +1,13 @@
 {% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <title> Электросамокат.ру </title>
 </head>
 <body>
@@ -16,16 +19,25 @@
                 <p>Пробный переулок д. 1</p>
             </div>
             <div class="header_content__auth">
-                <a href="#">Вход</a>
+                {% if not request.user.is_authenticated %}
+                <button class="open_auth_modal_button">Вход</button>
                 /
-                <a href="#">Регистрация</a>
+                <button class="open_auth_modal_button">Регистрация</button>
+                {% else %}
+                <form action="{% url 'store:logout' %}">
+                    <button class="exit_button">Выход</button>
+                </form>
+                /
+                {{request.user.email}}
+                {% endif %}
             </div>
             <div class="header_content__cart">
                 <div class="cart_field">
-                    <img src="/static/icons/free-icon-shopping-cart-5087816.png" alt="cart_icon">
-                    <p>0 р.</p>
+                    <img src="{% static 'icons/free-icon-shopping-cart-5087816.png' %}" alt="cart_icon">
+                    <p>0</p>
+                    <p>р.</p>
                 </div>
-                <button class="cart_button">Открыть корзину</button>
+                <button class="cart_button" id="open_cart_modal_button">Открыть корзину</button>
             </div>
         </div>
     </header>
@@ -33,16 +45,95 @@
     {% block content %}
     {% endblock %}
 
+    <div class="auth_modal_tonner" id="auth_modal_tonner">
+        <div class="auth_modal">
+            <div class="modal__content">
+                <div class="modal__buttons">
+                    <button class="button-prev"><p>Зарегистрироваться</p></button>
+                    <button class="button-next"><p>Войти</p></button>
+                </div>
+
+                <div class="swiper">
+                    <div class="swiper-wrapper">
+                        <form class="swiper-slide modal__form register_modal__form auth_modal_form">
+                            <div class="modal__item">
+                                <input type="text" name="email" placeholder="Email" required>
+                            </div>
+                            <div class="modal__item">
+                                <input type="text" name="password" placeholder="Password" required>
+                            </div>
+                            <div class="modal__item">
+                                <input type="checkbox" name="privacy_policy" id="privacy_policy" required>
+                                <label for="privacy_policy"><p>Вы подтверждаете политику конфиденциальности.</p></label>
+                            </div>
+                            <div class="modal__item">
+                                <button type="submit" class="submit_buttons">Зарегистрироваться</button>
+                            </div>
+                        </form>
+                        <form class="swiper-slide modal__form login_modal__form auth_modal_form">
+                            <div class="modal__item">
+                                <input type="text" name="email" placeholder="Email" required>
+                            </div>
+                            <div class="modal__item">
+                                <input type="text" name="password" placeholder="Password" required>
+                            </div>
+                            <div class="modal__item">
+                                <button type="submit" class="submit_buttons">Войти</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <button class="close_auth_modal_button" id="close_auth_modal_button"><img src="{% static 'icons/free-icon-cross-4510630.png' %}" alt="cross"></button>
+    </div>
+
+    <div class="cart_modal" id="cart_modal">
+        <div class="cart__content">
+
+            <div class="cart_content__wrapper">
+                <a href="#" class="cart__content_item">
+                    <div class="service_div" product_slug="123"></div>
+                    <div class="cart__item_img"><img src="{% static 'icons/kugoo-hx-png.png' %}" alt="product_photo"></div>
+                    <div class="cart__item_info">
+                        <p>Очень быстрый самокат</p>
+                        <p>50 000Р</p>
+                    </div>
+                </a>
+                <button class="cart_item_delete" product_slug="123"><img src="{% static 'icons/free-icon-cross-4510630.png' %}" alt="cross"></button>
+            </div>
+
+        </div>
+        <div class="cart__buttons">
+            <button id="clean_cart_button"><p>Очистить корзину</p></button>
+            <button><p>Оформить заказ</p></button>
+        </div>
+    </div>
+
     <footer>
         <div class="footer_content">
             <p>ООО "Электросамокат.ру"</p>
             <p>all rights reserved©</p>
             <div class="content__icons">
-                <a href="#"><img src="/static/icons/free-icon-vk-5968835.png" alt="VK"></a>
-                <a href="#"><img src="/static/icons/free-icon-telegram-2111646.png" alt="Telegram"></a>
-                <a href="#"><img src="/static/icons/free-icon-youtube-3670147.png" alt="YouTube"></a>
+                <a href="#"><img src="{% static 'icons/free-icon-vk-5968835.png' %}" alt="VK"></a>
+                <a href="#"><img src="{% static 'icons/free-icon-telegram-2111646.png' %}" alt="Telegram"></a>
+                <a href="#"><img src="{% static 'icons/free-icon-youtube-3670147.png' %}" alt="YouTube"></a>
             </div>
         </div>
     </footer>
+
+    <script src="{% static 'js/auth_modal_logic.js' %}"></script>
+    <script src="{% static 'js/modal_cart_logic.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        const swiper = new Swiper('.swiper', {
+            navigation: {
+                nextEl: '.button-next',
+                prevEl: '.button-prev',
+            },
+        });
+    </script>
+
 </body>
 </html>

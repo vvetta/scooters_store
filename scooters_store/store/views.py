@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http.response import JsonResponse
+from django.contrib.auth.hashers import make_password
+from django.http.response import JsonResponse, HttpResponse
 from .models import User, Product, Favorite, ProductsCategory, Order
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .cart import Cart
 from django.core import serializers
 
 
@@ -72,10 +75,10 @@ def register_user(request):
     """Представление регистрации пользователя."""
 
     if request.method == "POST":
-        email = request.get['email']
-        password = request.get['password']
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
-        user = User(email=email, password=password)
+        user = User(email=email, password=make_password(password))
 
         try:
             user.save()
@@ -91,8 +94,10 @@ def login_user(request):
     """Представление авторизации пользователя."""
 
     if request.method == "POST":
-        email = request.get['email']
-        password = request.get['password']
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        print(email, password)
 
         user = authenticate(username=email, password=password)
 
@@ -102,14 +107,15 @@ def login_user(request):
 
         if user.is_active:
             login(request, user)
-            return JsonResponse({'message': 'Вы успешно авторизовались!',
-                                 'status_code': 200})
+            return redirect("/")
 
 
 def logout_user(request):
     """Представление выхода пользователя из системы."""
 
     logout(request)
+
+    return redirect("/")
 
 
 def create_order(request):
@@ -178,3 +184,48 @@ def remove_from_favorite(request, product_slug: str):
                                             ' Возможно товар уже был удалён!',
                                  'status_code': 403,
                                  'error_detail': e})
+
+
+@require_POST
+def cart_add(request, product_slug: str):
+    """Представление добавляющее товар в корзину."""
+
+    cart = Cart(request)
+    product = get_object_or_404(Product, slug=product_slug)
+
+    cart.add(product)
+    cart.cart['total_price'] = int(cart.get_total_price())
+
+    return JsonResponse(cart.cart)
+
+
+@require_POST
+def cart_remove(request, product_slug: str):
+    """Представление удаляющее товар из корзины."""
+
+    cart = Cart(request)
+    product = get_object_or_404(Product, slug=product_slug)
+    cart.remove(product)
+
+    cart.cart['total_price'] = int(cart.get_total_price())
+
+    return JsonResponse(cart.cart)
+
+
+def cart_detail(request):
+    """Представление выводящее корзину покупок на страницу"""
+
+    cart = Cart(request)
+    cart.cart['total_price'] = int(cart.get_total_price())
+
+    return JsonResponse(cart.cart)
+
+
+@require_POST
+def clean_cart(request):
+    """Представление очищающие корзину."""
+
+    cart = Cart(request)
+    cart.clear()
+
+    return JsonResponse(cart.cart)

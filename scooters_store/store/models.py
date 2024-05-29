@@ -5,6 +5,7 @@ from .managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 
+
 # Create your models here.
 
 
@@ -69,7 +70,7 @@ class Product(models.Model):
     """Модель товаров."""
 
     title = models.CharField(verbose_name="Наименование", blank=False, max_length=255)
-    price = models.DecimalField(verbose_name="Цена", max_digits=10,  decimal_places=2)
+    price = models.DecimalField(verbose_name="Цена", max_digits=10, decimal_places=2)
     description = models.TextField(verbose_name="Описание", blank=False)
     count = models.IntegerField(verbose_name="Количество", blank=False)
     photo = models.ImageField(verbose_name="Фотография", blank=False, upload_to="media/products/")
@@ -142,7 +143,7 @@ class Order(models.Model):
 
     order_status = (
         ('1', 'Собирается'),
-        ('2',  'Доставляется'),
+        ('2', 'Доставляется'),
         ('3', 'Доставлен в ПВЗ'),
         ('4', 'Завершён'),
         ('5', 'Отменён')
@@ -154,7 +155,7 @@ class Order(models.Model):
     address = models.CharField(verbose_name="Адрес доставки", null=True, max_length=255, blank=True)
     store = models.ForeignKey(Store, verbose_name="Пункт выдачи", on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(verbose_name="Статус заказа", choices=order_status, blank=False, max_length=255)
-    price = models.DecimalField(verbose_name="Стоимость заказа", max_digits=10,  decimal_places=2, null=True)
+    price = models.DecimalField(verbose_name="Стоимость заказа", max_digits=10, decimal_places=2, null=True)
     created_date = models.DateTimeField(verbose_name="Дата заказа", auto_now_add=True)
 
     class Meta:
@@ -164,7 +165,6 @@ class Order(models.Model):
         ordering = ["-created_date"]
 
     def save(self, *args, **kwargs):
-
         # Получает общую стоимость заказа.
         super().save(*args, **kwargs)
         self.price = sum(product.price for product in self.products.all())
