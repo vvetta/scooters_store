@@ -1,10 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<h3 class="breadcrumb-header">Оформление заказа</h3>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+
+					<div class="col-md-7">
+						<!-- Billing Details -->
+						<div class="billing-details">
+							<div class="section-title">
+								<h3 class="title">Адрес доставки</h3>
+							</div>
+							{% if request.user.is_authenticated %}
+							<div class="form-group">
+								<input class="input" type="text" name="first-name" placeholder="Имя" value="{{request.user.first_name}}">
+							</div>
+							<div class="form-group">
+								<input class="input" type="text" name="last-name" placeholder="Фамилия" value="{{request.user.last_name}}">
+							</div>
+							<div class="form-group">
+								<input class="input" type="email" name="email" placeholder="Email" value="{{request.user.email}}">
+							</div>
+							<div class="form-group">
+								<input class="input" type="text" name="address" placeholder="Адрес">
+							</div>
+							<div class="form-group">
+								<input class="input" type="text" name="city" placeholder="Город" value="{{request.user.city}}">
+							</div>
+							<div class="form-group">
+								<input class="input" type="tel" name="tel" placeholder="Телефон" value="{{request.user.phone}}">
+							</div>
+
+							{% else %}
+
+							<div class="form-group">
+								<input class="input" type="text" name="first-name" placeholder="Имя">
+							</div>
+							<div class="form-group">
+								<input class="input" type="text" name="last-name" placeholder="Фамилия">
+							</div>
+							<div class="form-group">
+								<input class="input" type="email" name="email" placeholder="Email">
+							</div>
+							<div class="form-group">
+								<input class="input" type="text" name="address" placeholder="Адрес">
+							</div>
+							<div class="form-group">
+								<input class="input" type="text" name="city" placeholder="Город">
+							</div>
+							<div class="form-group">
+								<input class="input" type="tel" name="tel" placeholder="Телефон">
+							</div>
+							{% endif %}
+
+						</div>
+						<!-- /Billing Details -->
+
+
+
+						<!-- Order notes -->
+						<div class="order-notes">
+							<textarea class="input" placeholder="Комментарий к заказу" name="comm"></textarea>
+						</div>
+						<!-- /Order notes -->
+					</div>
+
+					<!-- Order Details -->
+					<div class="col-md-5 order-details">
+						<div class="section-title text-center">
+							<h3 class="title">Ваш заказ</h3>
+						</div>
+						<div class="order-summary">
+							<div class="order-col">
+								<div><strong>Товар</strong></div>
+								<div><strong>Всего</strong></div>
+							</div>
+							<div class="order-products">
+								<div class="order-col">
+									<div>1x Product Name Goes Here</div>
+									<div>$980.00</div>
+								</div>
+								<div class="order-col">
+									<div>2x Product Name Goes Here</div>
+									<div>$980.00</div>
+								</div>
+							</div>
+
+							<div class="order-col">
+								<div><strong>Всего</strong></div>
+								<div><strong class="order-total">$2940.00</strong></div>
+							</div>
+						</div>
+
+
+						<a href="#" class="primary-btn order-submit">Заказать</a>
+					</div>
+					<!-- /Order Details -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+		<div class="modal_wrapper">
+			<div class="modal_message">
+				<div class="modal_text">
+					<h3>Ваш номер заказа: <b class="modal_order_id"></b></h3>
+					<span class="modal_message_span"></span>
+				</div>
+				<div class="modal_buttons">
+					<a href="{% url 'store:index' %}">Готово</a>
+				</div>
+			</div>
+		</div>
+
+<script src="{% static 'js/order_logic.js' %}"></script>
+
+
+{% endblock %}

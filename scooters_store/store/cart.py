@@ -48,9 +48,13 @@ class Cart(object):
         """Удаление товара из корзины."""
 
         product_id = str(product.slug)
-        if product_id in self.cart:
-            del self.cart['products'][product_id]
-            self.save()
+        for product in self.cart['products']:
+            if product['slug'] == product_id and product['quantity'] == 1:
+                self.cart['products'].remove(product)
+                self.save()
+            elif product['slug'] == product_id and product['quantity'] > 1:
+                product['quantity'] = product['quantity'] - 1
+                self.save()
 
     def clear(self):
         """Удаление корзины из сессии. Полное очищение."""
@@ -86,4 +90,4 @@ class Cart(object):
     def __len__(self):
         """Выводит количество товаров к корзине."""
 
-        return sum(item['quantity'] for item in self.cart['products'].values())
+        return sum(item['quantity'] for item in self.cart['products'])

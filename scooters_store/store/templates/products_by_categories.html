@@ -1,10 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<h3 class="breadcrumb-header">{{actual_category.title}}</h3>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+<!-- STORE -->
+					<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row" style="display: flex; justify-content: center;">
+
+
+					<!-- STORE -->
+					<div id="store" class="col-md-9">
+
+
+						<!-- store products -->
+						<div class="row">
+							{% for product in products %}
+							<!-- product -->
+							<div class="col-md-3 col-xs-6">
+								<div class="product">
+									<div class="product-img">
+										<img src="http://127.0.0.1:8081/{{ product.photo }}" alt="">
+
+									</div>
+									<div class="product-body">
+										<p class="product-category">{{product.categories.first}}</p>
+										<h3 class="product-name"><a href="{{product.get_absolute_url}}">{{product.title}}</a></h3>
+										{% if product.old_price %}
+										<h4 class="product-price">{{product.price}} <del class="product-old-price">{{product.old_price}}</del></h4>
+										{% else %}
+										<h4 class="product-price">{{product.price}}</h4>
+										{% endif %}
+
+										<div class="product-btns">
+											<button class="add-to-wishlist" product_slug="{{product.slug}}"><i class="fa fa-heart-o"></i><span class="tooltipp">добавить в избранное</span></button>
+										</div>
+									</div>
+									<div class="add-to-cart">
+										<button class="add-to-cart-btn" product_slug="{{product.slug}}"><i class="fa fa-shopping-cart"></i>добавить в корзину</button>
+									</div>
+								</div>
+							</div>
+							<!-- /product -->
+
+							
+							{% endfor %}
+
+
+
+
+
+
+						</div>
+						<!-- /store products -->
+
+						<!-- store bottom filter -->
+<!--						<div class="store-filter clearfix">-->
+<!--							<span class="store-qty">Showing 20-100 products</span>-->
+<!--							<ul class="store-pagination">-->
+<!--								<li class="active">1</li>-->
+<!--								<li><a href="#">2</a></li>-->
+<!--								<li><a href="#">3</a></li>-->
+<!--								<li><a href="#">4</a></li>-->
+<!--								<li><a href="#"><i class="fa fa-angle-right"></i></a></li>-->
+<!--							</ul>-->
+<!--						</div>-->
+						<!-- /store bottom filter -->
+					</div>
+					<!-- /STORE -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+{% endblock %}

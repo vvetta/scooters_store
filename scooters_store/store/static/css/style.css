@@ -439,6 +439,108 @@ textarea.input {
   margin-right: 5px;
 }
 
+.auth_modal {
+  position: absolute;
+  z-index: 999;
+  background-color: #fff;
+  max-height: 300px;
+  max-width: 300px;
+  box-shadow: 0px 0px 0px 2px #E4E7ED;
+  /* padding: 30px; */
+  margin-top: 5px;
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.auth_modal.auth_modal_active {
+  display: flex;
+}
+
+.auth_modal_slide__buttons {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth_modal__wrapper {
+  width: 100%;
+  height: 100%;
+
+  /* margin: 30px; */
+  padding: 30px 0 30px 0;
+}
+
+.auth_modal__slide {
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth_modal_inputs_item {
+  margin: 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal_slide_header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal_slide_footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth_modal__buttons {
+  background-color: #1e1f29;
+  color: #FFF;
+  padding: 12px;
+  text-align: center;
+  font-weight: 700;
+  transition: 0.2s all;
+  border: none;
+  margin-top: 5px;
+}
+
+.auth_modal__buttons:hover {
+  opacity: 0.9;
+}
+
+
+.wishlist_wrapper {
+  position: absolute;
+  width: 300px;
+  height: 400px;
+  background-color: #fff;
+  padding: 15px;
+  box-shadow: 0px 0px 0px 2px #E4E7ED;
+  z-index: 99;
+  display: none;
+}
+
+.wishlist_wrapper.wishlist_active {
+  display: flex;
+}
+
+.wishlist_list {
+  overflow-y: scroll;
+  max-height: 390px;
+  width: 100%;
+}
+
 /*----------------------------*\
 	Logo
 \*----------------------------*/
@@ -1066,7 +1168,7 @@ textarea.input {
   background-color: #FFF;
   color: #D10024;
   border-color: #D10024;
-  padding: 0px 30px 0px 50px;
+  padding: 0;
 }
 
 .product .add-to-cart .add-to-cart-btn:hover>i {
@@ -2187,4 +2289,44 @@ textarea.input {
     float: none;
     margin-top: 10px;
   }
+}
+
+
+
+
+
+
+
+
+.modal_wrapper {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal_text {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.modal_message {
+    width: 40%;
+    height: 50%;
+    background-color: white;
+    border-radius: 4px;
+    border: 3px solid #D10024;
+    z-index: 999;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }

@@ -1,6 +1,88 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
 
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+
+                <h3>Пользователь: {{user.email}}</h3>
+
+                {% if request.user.email == user.email %}
+
+                
+
+                <div class="profile_wrapper">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'store:update_profile' %}">
+                        {% csrf_token %}
+                        <!-- <div class="profile_wrapper__item">
+                            <label for="email"><span>Почта: </span></label>
+                            <input class="profile__input" type="email" id="email" name="email" value="{{user.email}}">
+                        </div> -->
+                        <!-- <div class="profile_wrapper__item">
+                            <label for="password"><span>Введите пароль: </span></label>
+                            <input class="profile__input" type="password" id="password" name="password">
+                        </div> -->
+                        <div class="profile_wrapper__item">
+                            <label for="first_name"><span>Имя: </span></label>
+                            <input class="profile__input" type="first_name" id="first_name" name="first_name" value="{{user.first_name}}">
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <label for="last_name"><span>Фамилия: </span></label>
+                            <input class="profile__input" type="last_name" id="last_name" name="last_name" value="{{user.last_name}}">
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <label for="city"><span>Город: </span></label>
+                            <input class="profile__input" type="city" id="city" name="city" value="{{user.city}}">
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <label for="phone"><span>Телефон: </span></label>
+                            <input class="profile__input" type="tel" id="phone" name="phone" value="{{user.phone}}">
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <button class="auth_modal__buttons" type="submit">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+
+                {% else %}
+
+                <div class="profile_wrapper">
+                    <form>
+                        <!-- <div class="profile_wrapper__item">
+                            <label for="email"><span>Почта: </span></label>
+                            <input class="profile__input" type="email" id="email" name="email" value="{{user.email}}" readonly disabled>
+                        </div> -->
+                        <!-- <div class="profile_wrapper__item">
+                            <label for="password"><span>Пароль: </span></label>
+                            <input class="profile__input" type="password" id="password" name="password">
+                        </div> -->
+                        <div class="profile_wrapper__item">
+                            <label for="first_name"><span>Имя: </span></label>
+                            <input class="profile__input" type="first_name" id="first_name" name="first_name" value="{{user.first_name}}" readonly disabled>
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <label for="last_name"><span>Фамилия: </span></label>
+                            <input class="profile__input" type="last_name" id="last_name" name="last_name" value="{{user.last_name}}" readonly disabled>
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <label for="city"><span>Город: </span></label>
+                            <input class="profile__input" type="city" id="city" name="city" value="{{user.city}}" readonly disabled>
+                        </div>
+                        <div class="profile_wrapper__item">
+                            <label for="phone"><span>Телефон: </span></label>
+                            <input class="profile__input" type="tel" id="phone" name="phone" value="{{user.phone}}" readonly disabled>
+                        </div>
+                    </form>
+                </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

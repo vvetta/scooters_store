@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.hashers import make_password
-from django.http.response import JsonResponse, HttpResponse
+from django.http.response import JsonResponse
 from .models import User, Product, Favorite, ProductsCategory, Order
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .cart import Cart
-from django.core import serializers
+from .wishlist import WishList
+import json
 
 
 # Create your views here.
@@ -16,48 +17,72 @@ def index(request):
     """Представление главное страницы."""
 
     # Выводим только активные товары, и товары, у которых количество больше 0.
-    products = Product.objects.filter(is_active=True, count__gt=0)
+    new_products = Product.objects.filter(is_active=True, count__gt=0, new=1)
+    top_sale_products = Product.objects.filter(is_active=True, count__gt=0, top_sale=1)
+
     categories = ProductsCategory.objects.all()
 
     context = {
-        'products': products,
-        'categories': categories
+        'new_products': new_products,
+        'top_sale_products': top_sale_products,
+        'categories': categories,
     }
 
     return render(request, 'index.html', context=context)
 
 
-@login_required
+
 def profile(request, user_slug: str):
     """Представление профиля пользователя."""
 
     user = get_object_or_404(User, slug=user_slug)
     favorites_list = Favorite.objects.filter(user=user)
     orders_list = Order.objects.filter(user=user)
+    categories = ProductsCategory.objects.all()
 
     context = {
         'user': user,
         'favorites_list': favorites_list,
-        'orders_list': orders_list
+        'orders_list': orders_list,
+        'categories': categories
     }
 
     return render(request, 'profile.html', context=context)
+
+
+def update_user(request):
+    """Обновляет данные пользователя."""
+
+    if request.method == "POST" and request.user.is_authenticated:
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        city = request.POST.get('city')
+        phone = request.POST.get('phone')
+
+        user_for_update = User.objects.get(email=request.user.email)
+
+        user_for_update.first_name = first_name
+        user_for_update.last_name = last_name
+        user_for_update.city = city
+        user_for_update.phone = phone
+
+        user_for_update.save()
+
+        return redirect(f'http://127.0.0.1:8081/profile/{user_for_update.slug}/')
+
+
 
 
 def product_detail(request, product_slug):
     """Представление детальной информации о товаре."""
 
     product = get_object_or_404(Product, slug=product_slug)
+    categories = ProductsCategory.objects.all()
 
-    if request.user.is_authenticated:
-        context = {
-            'product': product,
-            'user': request.user
-        }
-    else:
-        context = {
-            'product': product.title
-        }
+    context = {
+        'product': product,
+        'categories': categories
+    }
 
     return render(request, 'product_detail.html', context=context)
 
@@ -67,8 +92,11 @@ def products_list_by_category(request, category_pk: int):
 
     category = ProductsCategory.objects.get(pk=category_pk)
     products = Product.objects.filter(categories=category)
+    categories = ProductsCategory.objects.all()
 
-    return JsonResponse(serializers.serialize('json', products))
+    return render(request, 'products_by_categories.html', {'products': products,
+                                                           'categories': categories,
+                                                           'actual_category': category})
 
 
 def register_user(request):
@@ -82,12 +110,10 @@ def register_user(request):
 
         try:
             user.save()
-            return JsonResponse({'message': 'Пользователь успешно зарегистрирован!',
-                                 'status_code': 200})
+            return redirect('/')
         except Exception as e:
             return JsonResponse({'message': 'Произошла ошибка при попытке создать пользователя!',
-                                 'status_code': 403,
-                                 'error_detail': e})
+                                 'status_code': 403})
 
 
 def login_user(request):
@@ -122,68 +148,66 @@ def create_order(request):
     """Представление создающее заказ."""
 
     if request.method == "POST":
-        products = [Product.objects.filter(slug=request_product['slug']) for request_product in request.get['products']]
 
-        order = Order(products=products, user=request.user)
+        data = json.loads(request.body)
+
+        products = [Product.objects.get(slug=request_product) for request_product in data['products']]
+
+        order = Order(price=data['total_price'], address=data['address'],
+                      first_name=data['first-name'], last_name=data['last-name'], city=data['city'],
+                      phone=data['tel'], email=data['email'], comment=data['comment'])
+
+        if request.user.is_authenticated:
+            order.user = request.user
+
+        order.save()
+        order.products.set(products)
 
         try:
             order.save()
-            return redirect('')
+            return JsonResponse({'message': 'Ваш заказ успешно создан, ожидайте звонка на указанный телефон!',
+                                 'status_code': 200,
+                                 'order_id': order.pk})
         except Exception as e:
             return JsonResponse({'message': 'При попытке совершить заказ произошла ошибка! Повторите попытку позже!',
                                  'status_code': 403,
                                  'error_detail': e})
 
-
-def order_detail(request, order_pk: int):
-    """Представление просмотра информации о заказе."""
-
-    order = get_object_or_404(Order, pk=order_pk)
-
-    context = {
-        'order': order
-    }
-
-    return render(request, '', context=context)
+    if request.method == "GET":
+        categories = ProductsCategory.objects.all()
+        context = {
+            'categories': categories
+        }
+        return render(request, 'order_create_page.html', context=context)
 
 
-@login_required
+@require_POST
 def add_to_favorite(request, product_slug: str):
     """Представление добавления товара в избранное."""
 
-    if request.method == "POST":
-        product = Product.objects.get(slug=product_slug)
-        favorite = Favorite(user=request.user, product=product)
+    wishlist = WishList(request)
+    product = get_object_or_404(Product, slug=product_slug)
+    wishlist.add(product)
 
-        try:
-            favorite.save()
-            return JsonResponse({'message': 'Вы успешно добавили товар в избранное!',
-                                'status_code': 200})
-        except Exception as e:
-            return JsonResponse({'message': 'Произошла ошибка при добавлении товара!'
-                                            ' Скорее всего товар уже находится в вашем избранном!',
-                                 'status_code': 403,
-                                 'error_detail': e})
+    return JsonResponse(wishlist.wishlist)
 
 
-@login_required
+@require_POST
 def remove_from_favorite(request, product_slug: str):
     """Представление, удаляющее товар из избранного."""
 
-    if request.method == "POST":
-        product = Product.objects.get(slug=product_slug)
-        favorite = Favorite.objects.get(user=request.user, product=product)
+    wishlist = WishList(request)
+    product = get_object_or_404(Product, slug=product_slug)
+    wishlist.remove(product)
 
-        try:
-            favorite.delete()
+    return JsonResponse(wishlist.wishlist)
 
-            return JsonResponse({'message': 'Вы успешно удалили товар из избранного!',
-                                 'status_code': 200})
-        except Exception as e:
-            return JsonResponse({'message': 'Произошла ошибка при удалении товара из избранного!'
-                                            ' Возможно товар уже был удалён!',
-                                 'status_code': 403,
-                                 'error_detail': e})
+
+def wishlist_detail(request):
+    """Возвращает список желаемого."""
+
+    wishlist = WishList(request)
+    return JsonResponse(wishlist.wishlist)
 
 
 @require_POST
@@ -217,6 +241,7 @@ def cart_detail(request):
 
     cart = Cart(request)
     cart.cart['total_price'] = int(cart.get_total_price())
+    cart.cart['product_len'] = len(cart)
 
     return JsonResponse(cart.cart)
 

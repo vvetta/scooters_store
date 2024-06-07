@@ -4,46 +4,187 @@
 
 
 {% block content %}
-    <main>
-        <div class="section">
-            <div class="section_header">
-                <p>Категории</p>
-            </div>
-            <div class="category_wrapper">
-                {% for category in categories %}
-                <div class="category_item"><button><p>{{category.title}}</p></button></div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="section">
-            <div class="section_header">
-                <p>Товары</p>
-            </div>
-            <div class="product_wrapper">
-                {% for product in products %}
-                <div class="product_item">
-                    <div class="product_img_field">
-                        <img src="{{product.photo}}" alt="productPhoto">
-                    </div>
-                    <div class="product_info_field">
-                        <p>{{product.title}}</p>
-                        <p>{{product.price}}р</p>
-                        <p>{{product.description}}</p>
-                    </div>
-                    <div class="product_buttons_field">
-                        <button class="add_to_favorite" product_slug="{{product.slug}}">
-                            <img src="{% static 'icons/free-icon-heart-shape-outline-25424.png' %}" alt="addToFavorite">
-                        </button>
-                        <button class="add_to_cart_button" id="add_to_cart_button" product_slug="{{product.slug}}">
-                            <p>Добавить в корзину</p>
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                
-                
-            </div>
-        </div>
-    </main>
+
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+
+					<!-- section title -->
+					<div class="col-md-12">
+						<div class="section-title">
+							<h3 class="title">Новинки</h3>
+							<div class="section-nav">
+								<ul class="section-tab-nav tab-nav">
+<!--									<li class="active"><a data-toggle="tab" href="#tab1">Laptops</a></li>-->
+<!--									<li><a data-toggle="tab" href="#tab1">Smartphones</a></li>-->
+<!--									<li><a data-toggle="tab" href="#tab1">Cameras</a></li>-->
+<!--									<li><a data-toggle="tab" href="#tab1">Accessories</a></li>-->
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- /section title -->
+
+					<!-- Products tab & slick -->
+					<div class="col-md-12">
+						<div class="row">
+							<div class="products-tabs">
+								<!-- tab -->
+								<div id="tab1" class="tab-pane active">
+									<div class="products-slick" data-nav="#slick-nav-1">
+										<!-- product -->
+                                        {% for product in new_products %}
+										<div class="product">
+											<div class="product-img">
+												<img src="{{product.photo}}" alt="">
+												<div class="product-label">
+													<span class="new">NEW</span>
+												</div>
+											</div>
+											<div class="product-body">
+												<p class="product-category">{{product.categories.first}}</p>
+												<h3 class="product-name"><a href="{{product.get_absolute_url}}">{{product.title}}</a></h3>
+												{% if product.old_price %}
+												<h4 class="product-price">{{product.price}} <del class="product-old-price">{{product.old_price}}</del></h4>
+												{% else %}
+												<h4 class="product-price">{{product.price}}</h4>
+												{% endif %}
+
+
+												<div class="product-btns">
+													<button class="add-to-wishlist" product_slug="{{product.slug}}"><i class="fa fa-heart-o"></i><span class="tooltipp">Добавить в избранное</span></button>
+<!--													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Посмотреть</span></button>-->
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn" product_slug="{{product.slug}}"><i class="fa fa-shopping-cart"></i>Добавить в корзину</button>
+											</div>
+										</div>
+                                        {% endfor %}
+										<!-- /product -->
+
+
+									</div>
+									<div id="slick-nav-1" class="products-slick-nav"></div>
+								</div>
+								<!-- /tab -->
+							</div>
+						</div>
+					</div>
+					<!-- Products tab & slick -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+
+					<!-- section title -->
+					<div class="col-md-12">
+						<div class="section-title">
+							<h3 class="title">Лидеры продаж</h3>
+
+						</div>
+					</div>
+					<!-- /section title -->
+
+					<!-- Products tab & slick -->
+					<div class="col-md-12">
+						<div class="row">
+							<div class="products-tabs">
+								<!-- tab -->
+								<div id="tab2" class="tab-pane fade in active">
+									<div class="products-slick" data-nav="#slick-nav-2">
+										<!-- product -->
+                                        {% for product in top_sale_products %}
+										<div class="product">
+											<div class="product-img">
+												<img src="{{product.photo}}" alt="">
+
+											</div>
+											<div class="product-body">
+												<p class="product-category">{{product.categories.second}}</p>
+												<h3 class="product-name"><a href="{{product.get_absolute_url}}">{{product.title}}</a></h3>
+												{% if product.old_price %}
+												<h4 class="product-price">{{product.price}}<del class="product-old-price">{{product.old_price}}</del></h4>
+												{% else %}
+												<h4 class="product-price">{{product.price}}</h4>
+												{% endif %}
+												<div class="product-btns">
+													<button class="add-to-wishlist" product_slug="{{product.slug}}"><i class="fa fa-heart-o"></i><span class="tooltipp">Добавить в избранное</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn" product_slug="{{product.slug}}"><i class="fa fa-shopping-cart"></i>Добавить в корзину</button>
+											</div>
+										</div>
+                                        {% endfor %}
+										<!-- /product -->
+
+
+									</div>
+									<div id="slick-nav-2" class="products-slick-nav"></div>
+								</div>
+								<!-- /tab -->
+							</div>
+						</div>
+					</div>
+					<!-- /Products tab & slick -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+
+
+		<!-- NEWSLETTER -->
+		<div id="newsletter" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<div class="newsletter">
+							<p>Подписаться на <strong>АКЦИИ</strong></p>
+							<form>
+								<input class="input" type="email" placeholder="Введите свой email">
+								<button class="newsletter-btn"><i class="fa fa-envelope"></i> Подписаться</button>
+							</form>
+							<ul class="newsletter-follow">
+								<li>
+									<a href="#"><i class="fa fa-facebook"></i></a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-twitter"></i></a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-instagram"></i></a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-pinterest"></i></a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /NEWSLETTER -->
 {% endblock %}

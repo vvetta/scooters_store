@@ -15,6 +15,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="Эл. почта", unique=True, blank=False,
                               help_text="Используйте формат: name@domain.com.")
 
+    first_name = models.CharField(verbose_name="Имя", blank=True, null=True, max_length=30)
+    last_name = models.CharField(verbose_name="Фамилия", blank=True, null=True, max_length=30)
+    city = models.CharField(verbose_name="Город", blank=True, null=True, max_length=255)
+
     password = models.CharField(verbose_name="Пароль", blank=False, max_length=255)
     phone = models.CharField(verbose_name="Тел. номер", blank=True, max_length=12,
                              help_text="Используйте формат: +79770000000")
@@ -80,6 +84,9 @@ class Product(models.Model):
     is_active = models.BooleanField(verbose_name="Активно / Нет", default=True)
     author = models.ForeignKey(verbose_name="Кто добавил", to=User, on_delete=models.SET_NULL, null=True)
     slug = models.SlugField(verbose_name="Ссылка", unique=True)
+    old_price = models.DecimalField(verbose_name="Старая цена", max_digits=10, decimal_places=2, null=True, blank=True)
+    new = models.BooleanField(verbose_name="Новинка", default=0)
+    top_sale = models.BooleanField(verbose_name="Лидер продаж", default=0)
 
     class Meta:
         verbose_name_plural = "Товары"
@@ -92,7 +99,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("main:one_trainer_view", kwargs={'slug': self.slug})
+        return reverse("store:product_detail", kwargs={'product_slug': self.slug})
 
     def __str__(self):
         return self.title
@@ -135,12 +142,6 @@ class Store(models.Model):
 class Order(models.Model):
     """Модель для сохранения заказов."""
 
-    # Способы получения товаров.
-    variants = (
-        ('1', 'Доставка'),
-        ('2', 'Самовывоз из магазина')
-    )
-
     order_status = (
         ('1', 'Собирается'),
         ('2', 'Доставляется'),
@@ -149,13 +150,17 @@ class Order(models.Model):
         ('5', 'Отменён')
     )
 
-    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.SET_NULL, null=True, blank=True)
+    first_name = models.CharField(verbose_name='Имя заказчика', null=True, blank=True, max_length=255)
+    email = models.EmailField(verbose_name="Эл. почта", null=True)
+    last_name = models.CharField(verbose_name='Фамилия заказчика', null=True, blank=True, max_length=255)
+    city = models.CharField(verbose_name='Город заказчика', null=True, blank=True, max_length=255)
     products = models.ManyToManyField(Product, verbose_name="Товары")
-    variant = models.CharField(verbose_name="Варианты получения заказа", choices=variants, blank=False, max_length=255)
+    phone = models.CharField(verbose_name="Телефон", blank=True, null=True, max_length=255)
     address = models.CharField(verbose_name="Адрес доставки", null=True, max_length=255, blank=True)
-    store = models.ForeignKey(Store, verbose_name="Пункт выдачи", on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(verbose_name="Статус заказа", choices=order_status, blank=False, max_length=255)
     price = models.DecimalField(verbose_name="Стоимость заказа", max_digits=10, decimal_places=2, null=True)
+    comment = models.TextField(verbose_name="Комментарий к заказу", null=True, blank=True)
     created_date = models.DateTimeField(verbose_name="Дата заказа", auto_now_add=True)
 
     class Meta:
